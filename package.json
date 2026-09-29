@@ -9,6 +9,7 @@
     "models": "node --env-file-if-exists=.env scripts/list-models.js",
     "test:e2e": "node --env-file-if-exists=.env scripts/e2e.js",
     "check": "node --env-file-if-exists=.env scripts/check-integrations.js",
+    "neo4j:env": "node scripts/import-neo4j-creds.js",
     "seed:neo4j": "node --env-file-if-exists=.env scripts/seed-neo4j.js"
   },
   "engines": {
