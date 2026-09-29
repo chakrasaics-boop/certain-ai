@@ -1,0 +1,15 @@
+{
+  "note": "Bundled fallback: subset of https://openrouter.ai/api/v1/models captured 2026-09-29. Used only when the live fetch fails. Prices are USD per token.",
+  "capturedAt": "2026-09-29T17:50:00Z",
+  "data": [
+    { "id": "anthropic/claude-sonnet-5.5", "name": "Anthropic: Claude Sonnet 5.5", "context_length": 1000000, "pricing": { "prompt": "0.000002", "completion": "0.00001" } },
+    { "id": "openai/gpt-6-sol", "name": "OpenAI: GPT-6 Sol", "pricing": { "prompt": "0.000002", "completion": "0.00001" } },
+    { "id": "openai/gpt-6-astra", "name": "OpenAI: GPT-6 Astra", "pricing": { "prompt": "0.00001", "completion": "0.00005" } },
+    { "id": "google/gemini-3.8-flash", "name": "Google: Gemini 3.8 Flash", "pricing": { "prompt": "0.00000075", "completion": "0.00000375" } },
+    { "id": "deepseek/deepseek-v4.1-flash", "name": "DeepSeek: DeepSeek V4.1 Flash", "context_length": 1048576, "pricing": { "prompt": "0.0000003", "completion": "0.0000012" } },
+    { "id": "z-ai/glm-5.3-flashx", "name": "Z.ai: GLM 5.3 FlashX", "context_length": 1048576, "pricing": { "prompt": "0.00000037", "completion": "0.00000125" } },
+    { "id": "z-ai/glm-5.3-prime", "name": "Z.ai: GLM 5.3 Prime", "context_length": 1000000, "pricing": { "prompt": "0.0000028", "completion": "0.0000088" } },
+    { "id": "qwen/qwen3.8-max-0902", "name": "Qwen: Qwen3.8 Max", "context_length": 1000000, "pricing": { "prompt": "0.000002", "completion": "0.000006" } },
+    { "id": "qwen/qwen3.8-omni-flash", "name": "Qwen: Qwen3.8 Omni Flash", "context_length": 1000000, "pricing": { "prompt": "0.00000015", "completion": "0.00000047" } }
+  ]
+}

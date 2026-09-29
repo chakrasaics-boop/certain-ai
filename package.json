@@ -1,0 +1,23 @@
+{
+  "name": "certain",
+  "version": "0.1.0",
+  "description": "AI agent that audits cloud + AI spend and proves every fix is safe before acting.",
+  "main": "server.js",
+  "type": "commonjs",
+  "scripts": {
+    "start": "node server.js",
+    "models": "node scripts/list-models.js",
+    "test:e2e": "node scripts/e2e.js",
+    "check": "node scripts/check-integrations.js",
+    "seed:neo4j": "node scripts/seed-neo4j.js"
+  },
+  "engines": {
+    "node": ">=18"
+  },
+  "dependencies": {
+    "cytoscape": "^3.30.2",
+    "express": "^4.21.2",
+    "neo4j-driver": "^5.28.1",
+    "openai": "^4.77.0"
+  }
+}

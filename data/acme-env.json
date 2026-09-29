@@ -1,0 +1,576 @@
+{
+  "account": {
+    "name": "Acme AI",
+    "stage": "Series A",
+    "clouds": [
+      "AWS us-east-1",
+      "EKS acme-prod",
+      "GPU inference"
+    ],
+    "monthlyBill": 40180,
+    "lookbackDays": 14
+  },
+  "resources": [
+    {
+      "id": "gpu-finetune-01",
+      "name": "gpu-finetune-01",
+      "type": "ec2-gpu",
+      "provider": "AWS EC2",
+      "region": "us-east-1",
+      "spec": "g6e.8xlarge \u00b7 1x NVIDIA L40S 48 GB \u00b7 32 vCPU",
+      "monthlyCost": 3104,
+      "owner": "ml-research",
+      "tags": {
+        "project": "llm-finetune-q2",
+        "env": "research"
+      },
+      "metrics": {
+        "gpuUtilAvg": 0,
+        "gpuUtilMax": 0,
+        "cpuUtilAvg": 0.4,
+        "netInGBDay": 0.01,
+        "lastSsh": "31 days ago",
+        "idleDays": 14
+      },
+      "power": {
+        "avgWatts": 320,
+        "note": "idle L40S (~60 W) + host CPU/RAM baseline"
+      }
+    },
+    {
+      "id": "rds-legacy-billing",
+      "name": "rds-legacy-billing",
+      "type": "rds",
+      "provider": "AWS RDS",
+      "region": "us-east-1",
+      "spec": "PostgreSQL 14 \u00b7 db.r6g.xlarge \u00b7 500 GB gp3",
+      "monthlyCost": 612,
+      "owner": "payments",
+      "tags": {
+        "env": "prod",
+        "created": "2023-04"
+      },
+      "metrics": {
+        "cpuUtilAvg": 1.8,
+        "cpuUtilMax": 6,
+        "connectionsAvg": 3,
+        "queriesPerMin": 11,
+        "idleDays": 0
+      },
+      "power": {
+        "avgWatts": 95
+      }
+    },
+    {
+      "id": "rds-analytics-pg",
+      "name": "rds-analytics-pg",
+      "type": "rds",
+      "provider": "AWS RDS",
+      "region": "us-east-1",
+      "spec": "PostgreSQL 15 \u00b7 db.r6g.4xlarge \u00b7 Multi-AZ",
+      "monthlyCost": 2380,
+      "owner": "data",
+      "tags": {
+        "env": "prod"
+      },
+      "metrics": {
+        "cpuUtilAvg": 6,
+        "cpuUtilMax": 14,
+        "memUsedPct": 19,
+        "connectionsAvg": 24
+      },
+      "targetSpec": "db.r6g.xlarge \u00b7 Multi-AZ",
+      "targetMonthlyCost": 595,
+      "power": {
+        "avgWatts": 260,
+        "targetWatts": 90
+      }
+    },
+    {
+      "id": "vol-0a91-orphan",
+      "name": "vol-0a91e3 (1 TB gp3)",
+      "type": "ebs",
+      "provider": "AWS EBS",
+      "region": "us-east-1",
+      "spec": "gp3 \u00b7 1024 GB \u00b7 unattached",
+      "monthlyCost": 82,
+      "owner": "platform",
+      "tags": {
+        "Name": "old-jenkins-data"
+      },
+      "metrics": {
+        "attached": false,
+        "detachedDays": 47,
+        "sizeTB": 1.0,
+        "media": "ssd"
+      }
+    },
+    {
+      "id": "vol-3c77-orphan",
+      "name": "vol-3c77b0 (2 TB io1)",
+      "type": "ebs",
+      "provider": "AWS EBS",
+      "region": "us-east-1",
+      "spec": "io1 \u00b7 2048 GB \u00b7 10k IOPS \u00b7 unattached",
+      "monthlyCost": 906,
+      "owner": "ml-research",
+      "tags": {
+        "Name": "benchmark-scratch"
+      },
+      "metrics": {
+        "attached": false,
+        "detachedDays": 92,
+        "sizeTB": 2.0,
+        "media": "ssd"
+      }
+    },
+    {
+      "id": "vol-5d12-orphan",
+      "name": "vol-5d12aa (500 GB gp2)",
+      "type": "ebs",
+      "provider": "AWS EBS",
+      "region": "us-east-1",
+      "spec": "gp2 \u00b7 500 GB \u00b7 unattached",
+      "monthlyCost": 50,
+      "owner": "platform",
+      "tags": {},
+      "metrics": {
+        "attached": false,
+        "detachedDays": 133,
+        "sizeTB": 0.5,
+        "media": "ssd"
+      }
+    },
+    {
+      "id": "s3-ml-datasets",
+      "name": "acme-ml-datasets",
+      "type": "s3",
+      "provider": "AWS S3",
+      "region": "us-east-1",
+      "spec": "4.1 TB \u00b7 ACL: public-read",
+      "monthlyCost": 94,
+      "owner": "ml-research",
+      "tags": {
+        "contains": "customer-transcripts-sample"
+      },
+      "metrics": {
+        "publicRead": true,
+        "anonymousGetsPerDay": 1840,
+        "egressGBMonth": 310
+      },
+      "egressMonthlyCost": 28
+    },
+    {
+      "id": "svc-support-copilot",
+      "name": "support-copilot",
+      "type": "llm-service",
+      "provider": "EKS \u00b7 closed-model API",
+      "region": "us-east-1",
+      "spec": "calls a frontier closed model (GPT-6 Astra class) \u00b7 410M tokens/mo",
+      "monthlyCost": 6150,
+      "owner": "support-eng",
+      "tags": {
+        "env": "prod"
+      },
+      "metrics": {
+        "tokensPerMonthM": 410,
+        "inputShare": 0.82,
+        "p95LatencyMs": 2100,
+        "avgPromptTokens": 3400
+      },
+      "targetModel": "moonshotai/Kimi-K2.6 on Crusoe Managed Inference",
+      "currentModel": "openai/gpt-6-astra"
+    },
+    {
+      "id": "ng-cpu-general",
+      "name": "ng-cpu-general",
+      "type": "k8s-nodegroup",
+      "provider": "EKS node group",
+      "region": "us-east-1",
+      "spec": "6x m5.4xlarge (16 vCPU / 64 GB)",
+      "monthlyCost": 3364,
+      "owner": "platform",
+      "tags": {
+        "cluster": "acme-prod"
+      },
+      "metrics": {
+        "nodes": 6,
+        "cpuRequestedPct": 22,
+        "cpuUtilAvg": 18,
+        "memRequestedPct": 31
+      },
+      "targetNodes": 3,
+      "targetMonthlyCost": 1682,
+      "power": {
+        "avgWatts": 540,
+        "targetWatts": 300
+      }
+    },
+    {
+      "id": "alb-public",
+      "name": "alb-public",
+      "type": "alb",
+      "provider": "AWS ALB",
+      "region": "us-east-1",
+      "spec": "internet-facing",
+      "monthlyCost": 48,
+      "metrics": {
+        "rpsAvg": 220
+      },
+      "owner": "platform",
+      "entrypoint": true,
+      "entrypointReason": "internet-facing ALB (api.acme.ai)"
+    },
+    {
+      "id": "cf-acme-web",
+      "name": "cloudfront-web",
+      "type": "cdn",
+      "provider": "AWS CloudFront",
+      "region": "global",
+      "spec": "d1x9.cloudfront.net",
+      "monthlyCost": 310,
+      "metrics": {},
+      "owner": "web",
+      "entrypoint": true,
+      "entrypointReason": "CloudFront distribution (www.acme.ai)"
+    },
+    {
+      "id": "s3-prod-assets",
+      "name": "acme-prod-assets",
+      "type": "s3",
+      "provider": "AWS S3",
+      "region": "us-east-1",
+      "spec": "private \u00b7 served via CloudFront OAC",
+      "monthlyCost": 61,
+      "metrics": {
+        "publicRead": false
+      },
+      "owner": "web"
+    },
+    {
+      "id": "svc-web-frontend",
+      "name": "web-frontend",
+      "type": "k8s-deploy",
+      "provider": "EKS",
+      "region": "us-east-1",
+      "spec": "4 replicas",
+      "monthlyCost": 0,
+      "metrics": {},
+      "owner": "web"
+    },
+    {
+      "id": "svc-billing-api",
+      "name": "billing-api",
+      "type": "k8s-deploy",
+      "provider": "EKS",
+      "region": "us-east-1",
+      "spec": "3 replicas",
+      "monthlyCost": 0,
+      "metrics": {},
+      "owner": "payments"
+    },
+    {
+      "id": "svc-invoice-worker",
+      "name": "invoice-worker",
+      "type": "k8s-cronjob",
+      "provider": "EKS",
+      "region": "us-east-1",
+      "spec": "runs nightly 02:00 UTC",
+      "monthlyCost": 0,
+      "metrics": {},
+      "owner": "payments",
+      "entrypoint": true,
+      "entrypointReason": "EventBridge nightly schedule"
+    },
+    {
+      "id": "fn-stripe-webhook",
+      "name": "stripe-webhook",
+      "type": "lambda",
+      "provider": "AWS Lambda",
+      "region": "us-east-1",
+      "spec": "nodejs20 \u00b7 512 MB",
+      "monthlyCost": 6,
+      "metrics": {},
+      "owner": "payments",
+      "entrypoint": true,
+      "entrypointReason": "Lambda function URL called by Stripe"
+    },
+    {
+      "id": "svc-metabase",
+      "name": "metabase",
+      "type": "k8s-deploy",
+      "provider": "EKS",
+      "region": "us-east-1",
+      "spec": "1 replica",
+      "monthlyCost": 0,
+      "metrics": {},
+      "owner": "data",
+      "entrypoint": true,
+      "entrypointReason": "internal ALB (bi.acme.internal)"
+    },
+    {
+      "id": "svc-support-widget",
+      "name": "support-widget",
+      "type": "k8s-deploy",
+      "provider": "EKS",
+      "region": "us-east-1",
+      "spec": "2 replicas",
+      "monthlyCost": 0,
+      "metrics": {},
+      "owner": "support-eng"
+    },
+    {
+      "id": "svc-llm-gateway",
+      "name": "llm-gateway",
+      "type": "k8s-deploy",
+      "provider": "EKS \u00b7 LiteLLM",
+      "region": "us-east-1",
+      "spec": "routes model calls",
+      "monthlyCost": 0,
+      "metrics": {},
+      "owner": "platform"
+    },
+    {
+      "id": "gpu-vllm-embed",
+      "name": "vllm-embeddings",
+      "type": "ec2-gpu",
+      "provider": "EKS GPU node",
+      "region": "us-east-1",
+      "spec": "g5.2xlarge \u00b7 1x A10G",
+      "monthlyCost": 885,
+      "metrics": {
+        "gpuUtilAvg": 71
+      },
+      "power": {
+        "avgWatts": 310
+      },
+      "owner": "support-eng"
+    },
+    {
+      "id": "redis-cache",
+      "name": "redis-cache",
+      "type": "elasticache",
+      "provider": "AWS ElastiCache",
+      "region": "us-east-1",
+      "spec": "cache.r6g.large",
+      "monthlyCost": 190,
+      "metrics": {
+        "cpuUtilAvg": 34
+      },
+      "owner": "web"
+    },
+    {
+      "id": "rds-app-main",
+      "name": "rds-app-main",
+      "type": "rds",
+      "provider": "AWS RDS",
+      "region": "us-east-1",
+      "spec": "PostgreSQL 15 \u00b7 db.r6g.2xlarge",
+      "monthlyCost": 1190,
+      "metrics": {
+        "cpuUtilAvg": 48
+      },
+      "owner": "web"
+    },
+    {
+      "id": "eks-acme-prod",
+      "name": "eks acme-prod",
+      "type": "eks",
+      "provider": "AWS EKS",
+      "region": "us-east-1",
+      "spec": "control plane 1.30",
+      "monthlyCost": 73,
+      "metrics": {},
+      "owner": "platform"
+    },
+    {
+      "id": "r53-acme-ai",
+      "name": "acme.ai (Route 53)",
+      "type": "dns",
+      "provider": "AWS Route 53",
+      "region": "global",
+      "spec": "www / api records",
+      "monthlyCost": 1,
+      "owner": "platform",
+      "entrypoint": true,
+      "entrypointReason": "public DNS zone receiving queries",
+      "metrics": {
+        "queriesPerDay": 410000
+      }
+    },
+    {
+      "id": "svc-recsys-v1",
+      "name": "recsys-v1",
+      "type": "k8s-deploy",
+      "provider": "EKS",
+      "region": "us-east-1",
+      "spec": "2 replicas \u00b7 4 vCPU / 16 GB requested",
+      "monthlyCost": 140,
+      "owner": "ml-research",
+      "tags": {
+        "env": "prod",
+        "deprecated-by": "recsys-v2 (never shipped)"
+      },
+      "metrics": {
+        "cpuUtilAvg": 11,
+        "rps": 0.4,
+        "inboundCallers": 0
+      },
+      "power": {
+        "avgWatts": 40
+      }
+    },
+    {
+      "id": "redis-recsys",
+      "name": "redis-recsys",
+      "type": "elasticache",
+      "provider": "AWS ElastiCache",
+      "region": "us-east-1",
+      "spec": "cache.r6g.xlarge",
+      "monthlyCost": 380,
+      "owner": "ml-research",
+      "tags": {
+        "env": "prod"
+      },
+      "metrics": {
+        "cpuUtilAvg": 9,
+        "connectionsAvg": 4
+      },
+      "power": {
+        "avgWatts": 60
+      }
+    }
+  ],
+  "edges": [
+    {
+      "from": "cf-acme-web",
+      "to": "s3-prod-assets",
+      "kind": "SERVES_FROM"
+    },
+    {
+      "from": "cf-acme-web",
+      "to": "alb-public",
+      "kind": "ORIGIN"
+    },
+    {
+      "from": "alb-public",
+      "to": "svc-web-frontend",
+      "kind": "ROUTES_TO"
+    },
+    {
+      "from": "alb-public",
+      "to": "svc-billing-api",
+      "kind": "ROUTES_TO"
+    },
+    {
+      "from": "alb-public",
+      "to": "svc-support-widget",
+      "kind": "ROUTES_TO"
+    },
+    {
+      "from": "svc-web-frontend",
+      "to": "rds-app-main",
+      "kind": "READS_FROM"
+    },
+    {
+      "from": "svc-web-frontend",
+      "to": "redis-cache",
+      "kind": "READS_FROM"
+    },
+    {
+      "from": "svc-billing-api",
+      "to": "rds-legacy-billing",
+      "kind": "READS_WRITES"
+    },
+    {
+      "from": "svc-invoice-worker",
+      "to": "rds-legacy-billing",
+      "kind": "READS_FROM"
+    },
+    {
+      "from": "fn-stripe-webhook",
+      "to": "rds-legacy-billing",
+      "kind": "WRITES_TO"
+    },
+    {
+      "from": "svc-metabase",
+      "to": "rds-analytics-pg",
+      "kind": "READS_FROM"
+    },
+    {
+      "from": "svc-support-widget",
+      "to": "svc-support-copilot",
+      "kind": "CALLS"
+    },
+    {
+      "from": "svc-support-copilot",
+      "to": "svc-llm-gateway",
+      "kind": "CALLS"
+    },
+    {
+      "from": "svc-support-copilot",
+      "to": "gpu-vllm-embed",
+      "kind": "CALLS"
+    },
+    {
+      "from": "svc-web-frontend",
+      "to": "ng-cpu-general",
+      "kind": "RUNS_ON"
+    },
+    {
+      "from": "svc-billing-api",
+      "to": "ng-cpu-general",
+      "kind": "RUNS_ON"
+    },
+    {
+      "from": "svc-invoice-worker",
+      "to": "ng-cpu-general",
+      "kind": "RUNS_ON"
+    },
+    {
+      "from": "svc-metabase",
+      "to": "ng-cpu-general",
+      "kind": "RUNS_ON"
+    },
+    {
+      "from": "svc-support-copilot",
+      "to": "ng-cpu-general",
+      "kind": "RUNS_ON"
+    },
+    {
+      "from": "svc-llm-gateway",
+      "to": "ng-cpu-general",
+      "kind": "RUNS_ON"
+    },
+    {
+      "from": "ng-cpu-general",
+      "to": "eks-acme-prod",
+      "kind": "MEMBER_OF"
+    },
+    {
+      "from": "gpu-vllm-embed",
+      "to": "eks-acme-prod",
+      "kind": "MEMBER_OF"
+    },
+    {
+      "from": "r53-acme-ai",
+      "to": "cf-acme-web",
+      "kind": "RESOLVES_TO"
+    },
+    {
+      "from": "r53-acme-ai",
+      "to": "alb-public",
+      "kind": "RESOLVES_TO"
+    },
+    {
+      "from": "svc-recsys-v1",
+      "to": "redis-recsys",
+      "kind": "READS_FROM"
+    },
+    {
+      "from": "svc-recsys-v1",
+      "to": "ng-cpu-general",
+      "kind": "RUNS_ON"
+    }
+  ]
+}

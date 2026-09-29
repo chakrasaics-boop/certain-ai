@@ -1,0 +1,41 @@
+bill/BillingPeriodStartDate,lineItem/ProductCode,lineItem/ResourceId,lineItem/UsageType,lineItem/UsageAmount,lineItem/UnblendedCost,lineItem/LineItemDescription,resourceTags/user:Name,avg_utilization_pct,status
+2026-09-01,AmazonEC2,i-0a1f9c3e7b2d4e611,USE1-BoxUsage:g6e.8xlarge,730,3104.00,g6e.8xlarge Linux On Demand (EDP -6%),gpu-finetune-01,0,running
+2026-09-01,AmazonEC2,i-07c2e1d5a9b3f0a22,USE1-BoxUsage:g5.2xlarge,730,885.00,g5.2xlarge Linux On Demand,vllm-embeddings,71,running
+2026-09-01,AmazonEC2,i-0b33a1c09e7d5f101,USE1-BoxUsage:m5.4xlarge,730,560.64,m5.4xlarge Linux On Demand (EKS ng-cpu-general),ng-cpu-general-1,19,running
+2026-09-01,AmazonEC2,i-0b33a1c09e7d5f102,USE1-BoxUsage:m5.4xlarge,730,560.64,m5.4xlarge Linux On Demand (EKS ng-cpu-general),ng-cpu-general-2,17,running
+2026-09-01,AmazonEC2,i-0b33a1c09e7d5f103,USE1-BoxUsage:m5.4xlarge,730,560.64,m5.4xlarge Linux On Demand (EKS ng-cpu-general),ng-cpu-general-3,21,running
+2026-09-01,AmazonEC2,i-0b33a1c09e7d5f104,USE1-BoxUsage:m5.4xlarge,730,560.64,m5.4xlarge Linux On Demand (EKS ng-cpu-general),ng-cpu-general-4,16,running
+2026-09-01,AmazonEC2,i-0b33a1c09e7d5f105,USE1-BoxUsage:m5.4xlarge,730,560.64,m5.4xlarge Linux On Demand (EKS ng-cpu-general),ng-cpu-general-5,18,running
+2026-09-01,AmazonEC2,i-0b33a1c09e7d5f106,USE1-BoxUsage:m5.4xlarge,730,560.64,m5.4xlarge Linux On Demand (EKS ng-cpu-general),ng-cpu-general-6,17,running
+2026-09-01,AmazonEC2,i-02de99f1c4a6b7e30,USE1-BoxUsage:c6i.2xlarge,730,248.20,c6i.2xlarge Linux On Demand,ci-runner-legacy,3,running
+2026-09-01,AmazonEC2,i-09ae7f3b2c1d0e441,USE1-BoxUsage:t3.xlarge,730,121.47,t3.xlarge Linux On Demand,bastion-old,1,running
+2026-09-01,AmazonEC2,vol-0a91e3c4d5f6a7b81,USE1-EBS:VolumeUsage.gp3,1024,81.92,$0.08 per GB-month of gp3 provisioned storage,old-jenkins-data,,unattached
+2026-09-01,AmazonEC2,vol-3c77b0e1f2a3b4c52,USE1-EBS:VolumeUsage.piops,2048,256.00,$0.125 per GB-month of io1 provisioned storage,benchmark-scratch,,unattached
+2026-09-01,AmazonEC2,vol-3c77b0e1f2a3b4c52,USE1-EBS:VolumeP-IOPS.piops,10000,650.00,$0.065 per IOPS-month provisioned io1,benchmark-scratch,,unattached
+2026-09-01,AmazonEC2,vol-5d12aa7e8f9a0b1c3,USE1-EBS:VolumeUsage.gp2,500,50.00,$0.10 per GB-month of gp2 provisioned storage,,,unattached
+2026-09-01,AmazonEC2,vol-0e44f1a2b3c4d5e66,USE1-EBS:VolumeUsage.gp3,2048,163.84,$0.08 per GB-month of gp3 provisioned storage,rds-app-main-scratch,,in-use
+2026-09-01,AmazonEC2,snap-group-2024,USE1-EBS:SnapshotUsage,9200,460.00,$0.05 per GB-month of snapshot data stored (412 snapshots older than 180 days),ami-backups-2024,,
+2026-09-01,AmazonEC2,nat-0f1e2d3c4b5a69788,USE1-NatGateway-Bytes,21400,963.00,$0.045 per GB data processed by NAT Gateways,nat-prod-a,,
+2026-09-01,AmazonEC2,nat-0f1e2d3c4b5a69788,USE1-NatGateway-Hours,730,32.85,$0.045 per NAT Gateway Hour,nat-prod-a,,
+2026-09-01,AWSDataTransfer,,USE1-DataTransfer-Out-Bytes,6100,549.00,$0.09 per GB - first 10 TB / month data transfer out,,,
+2026-09-01,AmazonEC2,eipalloc-0c1d2e3f4a5b6c7d8,USE1-ElasticIP:IdleAddress,1460,7.30,$0.005 per Elastic IP address not attached to a running instance per hour,,,unattached
+2026-09-01,AmazonRDS,arn:aws:rds:us-east-1:123456789012:db:rds-analytics-pg,USE1-Multi-AZUsage:db.r6g.4xl,730,2380.00,RDS db.r6g.4xlarge Multi-AZ PostgreSQL,rds-analytics-pg,6,running
+2026-09-01,AmazonRDS,arn:aws:rds:us-east-1:123456789012:db:rds-app-main,USE1-InstanceUsage:db.r6g.2xl,730,1190.00,RDS db.r6g.2xlarge PostgreSQL,rds-app-main,48,running
+2026-09-01,AmazonRDS,arn:aws:rds:us-east-1:123456789012:db:rds-legacy-billing,USE1-InstanceUsage:db.r6g.xl,730,612.00,RDS db.r6g.xlarge PostgreSQL,rds-legacy-billing,1.8,running
+2026-09-01,AmazonS3,acme-ml-datasets,USE1-TimedStorage-ByteHrs,4198,94.00,$0.023 per GB-month storage (public-read),acme-ml-datasets,,
+2026-09-01,AmazonS3,acme-prod-assets,USE1-TimedStorage-ByteHrs,2650,61.00,$0.023 per GB-month storage,acme-prod-assets,,
+2026-09-01,AmazonCloudFront,d1x9example,US-DataTransfer-Out-Bytes,3650,310.00,CloudFront data transfer out,cloudfront-web,,
+2026-09-01,AmazonElastiCache,redis-cache,USE1-NodeUsage:cache.r6g.large,730,190.00,ElastiCache cache.r6g.large,redis-cache,34,running
+2026-09-01,AmazonEKS,arn:aws:eks:us-east-1:123456789012:cluster/acme-prod,USE1-AmazonEKS-Hours:perCluster,730,73.00,EKS cluster hours,eks-acme-prod,,
+2026-09-01,AWSLambda,stripe-webhook,USE1-Lambda-GB-Second,380000,6.33,Lambda GB-seconds,stripe-webhook,,
+2026-09-01,AmazonBedrock,,USE1-Claude-Sonnet-input-tokens,64000000,192.00,Bedrock Anthropic Claude Sonnet input tokens,internal-search,,
+2026-09-01,AmazonBedrock,,USE1-Claude-Sonnet-output-tokens,6000000,90.00,Bedrock Anthropic Claude Sonnet output tokens,internal-search,,
+2026-09-01,OpenAI (marketplace),support-copilot,gpt-6-astra-input-tokens,336200000,4300.00,OpenAI API input tokens (support-copilot; committed discount),support-copilot,,
+2026-09-01,OpenAI (marketplace),support-copilot,gpt-6-astra-output-tokens,73800000,1850.00,OpenAI API output tokens (support-copilot; committed discount),support-copilot,,
+2026-09-01,AmazonCloudWatch,,USE1-CW:Logs-Ingested,5200,2600.00,CloudWatch Logs ingestion $0.50 per GB,,,
+2026-09-01,AWSSupportBusiness,,Support-Business,1,1950.00,AWS Business Support,,,
+2026-09-01,AmazonEC2,,USE1-EBS:VolumeUsage.gp3,61000,4880.00,$0.08 per GB-month of gp3 provisioned storage (attached fleet),,,in-use
+2026-09-01,AmazonEC2,,USE1-BoxUsage:c6i.4xlarge,8760,4467.60,c6i.4xlarge Linux On Demand (web autoscaling group),web-asg,54,running
+2026-09-01,AmazonEC2,,USE1-BoxUsage:r6i.2xlarge,4380,2207.52,r6i.2xlarge Linux On Demand (worker autoscaling group),worker-asg,47,running
+2026-09-01,AmazonMSK,,USE1-Kafka.m5.large,2190,460.00,MSK kafka.m5.large broker hours,events-kafka,39,running
+2026-09-01,AmazonOpenSearchService,,USE1-ESInstance:r6g.large.search,2190,370.00,OpenSearch r6g.large.search,logs-search,42,running

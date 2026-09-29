@@ -1,0 +1,143 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>CertAIn</title>
+  <meta name="description" content="Cloud and AI savings you can be certain of." />
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Cpath d='M16 2 4 7v8c0 7.5 5.1 13.4 12 15 6.9-1.6 12-7.5 12-15V7z' fill='%233ddc97'/%3E%3Cpath d='m10 16 4 4 8-8' stroke='%230b0f14' stroke-width='3' fill='none' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <header class="topbar">
+    <div class="brand">
+      <svg class="logo" viewBox="0 0 32 32" aria-hidden="true"><path d="M16 2 4 7v8c0 7.5 5.1 13.4 12 15 6.9-1.6 12-7.5 12-15V7z" fill="var(--green)"/><path d="m10 16 4 4 8-8" stroke="var(--bg)" stroke-width="3" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      <div>
+        <div class="wordmark">Cert<span>AI</span>n</div>
+        <div class="tagline">Cloud and AI savings you can be certain of.</div>
+      </div>
+    </div>
+    <div class="account" id="account">Acme AI</div>
+    <div class="top-actions">
+      <button class="btn ghost" id="resetBtn" title="Clear findings">Reset</button>
+      <button class="btn primary" id="auditBtn"><span class="dot"></span>Run audit</button>
+    </div>
+  </header>
+
+  <section class="hero">
+    <div class="hero-money-box money">
+      <div class="hero-k">Recovered per month</div>
+      <div class="hero-money"><span id="savedMoney">$0</span><small>/mo</small></div>
+      <div class="hero-sub" id="savedSub">Run an audit to find waste</div>
+    </div>
+    <div class="hero-copy">
+      <h1>Everyone else asks for permission. <span>We show proof.</span></h1>
+      <div class="motto"><span class="m-c">Crusoe reasons.</span> <span class="m-n">Neo4j proves.</span> <span class="m-h">A human approves.</span> <span class="m-d">DuploCloud acts.</span></div>
+    </div>
+    <button class="btn primary big bill-btn" id="billBtn">Try it on your bill</button>
+  </section>
+  <nav class="integrations" id="integrations" aria-label="Sponsor integrations"></nav>
+
+  <section class="counters">
+    <div class="counter found">
+      <div class="c-label">Waste found</div>
+      <div class="c-value" id="foundMoney">$0<small>/mo</small></div>
+      <div class="c-sub" id="foundSub">0 findings</div>
+    </div>
+    <div class="counter co2">
+      <div class="c-label">CO2 avoided per month
+        <span class="info" tabindex="0">i<span class="tip" id="co2Tip">Energy (kWh) x PUE x grid intensity.</span></span>
+      </div>
+      <div class="c-value"><span id="savedCo2">0</span><small> kg</small></div>
+      <div class="c-sub" id="co2Sub">CO2e, same card as the dollars</div>
+    </div>
+    <div class="counter cost">
+      <div class="c-label">This audit cost</div>
+      <div class="c-value"><span id="auditCost">$0.00</span><small> on Crusoe</small></div>
+      <div class="budget"><div class="budget-bar" id="budgetBar"></div></div>
+      <div class="c-sub" id="costSub">Hard budget cap $0.50 · 0 tokens</div>
+      <div class="mult" id="costMult" hidden><span id="multText"></span> <span class="info" tabindex="0">i<span class="tip" id="multTip"></span></span></div>
+    </div>
+  </section>
+
+  <div class="tabs" role="tablist">
+    <button class="tab on" data-tab="audit" role="tab">Audit</button>
+    <button class="tab" data-tab="graph" role="tab">Graph <span class="tab-sub">Neo4j</span></button>
+  </div>
+
+  <section class="graph-view" id="graphView" hidden>
+    <div class="panel gv-main">
+      <div class="panel-head"><h2>Resource graph</h2><span class="muted" id="gvMeta" style="font-size:12px"></span></div>
+      <div id="gcy"></div>
+      <div class="gv-legend">
+        <span><i class="lg ep"></i>live entrypoint</span><span><i class="lg waste"></i>waste (actionable)</span><span><i class="lg orphan"></i>orphan: found by graph</span><span><i class="lg veto"></i>vetoed: has dependents</span><span><i class="lg ok"></i>healthy</span>
+      </div>
+    </div>
+    <div class="gv-side">
+      <div class="panel"><div class="panel-head"><h2>Waste by team</h2><span class="muted" style="font-size:12px">(:Team)-[:OWNS]-&gt;(r)</span></div><div id="teams" class="teams"></div></div>
+      <div class="panel"><div class="panel-head"><h2>Cypher the agents run</h2></div><div id="queries" class="queries"></div></div>
+    </div>
+  </section>
+
+  <main class="grid" id="auditView">
+    <section class="panel trace-panel">
+      <div class="panel-head">
+        <h2>Band room</h2>
+        <span class="muted" id="roomName" style="font-size:12px">#acme-waste-audit</span>
+        <span class="tps" id="tps" title="Output tokens per second on Crusoe">-- tok/s</span>
+      </div>
+      <div class="room-meta" id="members"></div>
+      <ol class="room" id="room">
+        <li class="empty">@Scout, @SafetyCritic and @Executor coordinate here. Scout finds waste, SafetyCritic approves or vetoes each fix, and Executor joins only after you approve one.</li>
+      </ol>
+    </section>
+
+    <section class="panel findings-panel">
+      <div class="panel-head"><h2>Findings</h2><span class="muted" id="findingsMeta"></span><button class="btn small veto-jump" id="vetoBtn" hidden title="Jump to the vetoed finding (shortcut: v)">Show veto</button></div>
+      <div class="findings" id="findings">
+        <div class="empty-state">
+          <p>No audit yet.</p>
+          <p class="muted">Click <b>Run audit</b> to scan Acme AI's AWS, Kubernetes and GPU inference spend.</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="panel detail-panel" id="detail">
+      <div class="empty-state big">
+        <svg viewBox="0 0 64 64" width="56" height="56" aria-hidden="true"><circle cx="16" cy="32" r="6" fill="none" stroke="currentColor" stroke-width="2"/><circle cx="48" cy="16" r="6" fill="none" stroke="currentColor" stroke-width="2"/><circle cx="48" cy="48" r="6" fill="none" stroke="currentColor" stroke-width="2"/><path d="M22 29 42 19M22 35l20 10" stroke="currentColor" stroke-width="2"/></svg>
+        <p>Proof before action</p>
+        <p class="muted">Every fix passes four gates: blast radius, dry run, human approval, DuploCloud execution with rollback.</p>
+      </div>
+    </section>
+  </main>
+
+  <div class="modal" id="billModal" hidden role="dialog" aria-modal="true" aria-labelledby="billTitle">
+    <div class="modal-card">
+      <div class="modal-head">
+        <h2 id="billTitle">Try it on your bill</h2>
+        <button class="btn ghost small" id="billClose" aria-label="Close">Close</button>
+      </div>
+      <div class="bill-input" id="billInput">
+        <label class="drop" id="drop">
+          <input type="file" id="billFile" accept=".csv,text/csv" hidden />
+          <b>Drop an AWS Cost Explorer or CUR CSV</b>
+          <span class="muted">or any CSV with service / resource / usage / cost columns. Click to choose a file.</span>
+        </label>
+        <div class="bill-or"><button class="btn" id="sampleBtn">Use sample bill</button><span class="muted">A realistic 40-line CUR export for a $39K/mo startup.</span></div>
+        <p class="privacy">Processed on this machine by the CertAIn server you are running. Raw rows are never uploaded. In live mode, only the top findings' titles and dollar totals go to Crusoe for the Scout's summary.</p>
+      </div>
+      <div class="bill-out" id="billOut"></div>
+    </div>
+  </div>
+
+  <footer class="foot">
+    <span id="footMode"></span>
+  </footer>
+
+  <script src="/vendor/cytoscape.min.js"></script>
+  <script>window.cytoscape || document.write('<script src="https://cdnjs.cloudflare.com/ajax/libs/cytoscape/3.30.2/cytoscape.min.js"><\/script>')</script>
+  <script src="app.js"></script>
+</body>
+</html>
