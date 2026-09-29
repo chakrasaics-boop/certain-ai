@@ -93,26 +93,56 @@ class BandRestTransport {
     await this.req('Scout', 'GET', '/me');
   }
 
+  // Which of our agents sent this Band message? Match on agent id first, then on
+  // the display name / handle, since the id shown in the Band UI may differ from sender_id.
+  senderOf(m) {
+    const sid = m.sender_id || m.sender?.id;
+    const name = String(m.sender_name || m.sender?.name || m.sender?.handle || '').toLowerCase();
+    return (
+      AGENTS.find((a) => this.cfg.agents[a].id === sid) ||
+      AGENTS.find((a) => name && (name === a.toLowerCase() || name === this.cfg.agents[a].handle.toLowerCase() || name.endsWith('/' + a.toLowerCase()))) ||
+      'human'
+    );
+  }
+
+  mentionsAgent(m, agent) {
+    const a = this.cfg.agents[agent];
+    const content = String(m.content || '').toLowerCase();
+    if ([a.handle, agent].some((h) => content.includes('@' + h.toLowerCase()))) return true;
+    const ms = m.metadata?.mentions || m.mentions || [];
+    return ms.some((x) => {
+      const v = typeof x === 'string' ? x : x.id || x.participant_id || x.handle || x.name || '';
+      return v === a.id || String(v).toLowerCase() === a.handle.toLowerCase() || String(v).toLowerCase() === agent.toLowerCase();
+    });
+  }
+
+  deliver(agent, msg) {
+    const key = `${agent}:${msg.id}`;
+    if (this.seen.has(key)) return;
+    this.seen.add(key);
+    const h = this.handlers.get(agent);
+    if (h) h(msg);
+  }
+
   subscribe(agent, handler) {
     this.handlers.set(agent, handler);
+    const room = this.cfg.roomId;
     const poll = async () => {
       if (!this.handlers.has(agent)) return;
       try {
-        const r = await this.req(agent, 'GET', `/chats/${this.cfg.roomId}/messages?sort_order=desc&page_size=30`);
+        const r = await this.req(agent, 'GET', `/chats/${room}/messages?status=all&sort_order=desc&limit=50`);
         const items = (r.data || r.messages || []).slice().reverse();
+        if (process.env.BAND_DEBUG && items.length && !this.debugged) {
+          this.debugged = true;
+          console.log('[band] sample message:', JSON.stringify(items[items.length - 1]).slice(0, 600));
+        }
         for (const m of items) {
           const id = m.id || m.message_id;
-          const key = `${agent}:${id}`;
-          if (!id || this.seen.has(key)) continue;
-          this.seen.add(key);
-          const content = m.content || '';
-          const senderId = m.sender_id || m.sender?.id;
-          if (senderId === this.cfg.agents[agent].id) continue;
-          const handle = this.cfg.agents[agent].handle;
-          if (!content.includes(`@${handle}`) && !content.includes(`@${agent}`)) continue;
-          const from = AGENTS.find((a) => this.cfg.agents[a].id === senderId) || 'human';
-          handler({ id, from, user: m.sender_name || m.sender?.name || m.sender?.handle, text: content, mentions: [agent], viaBand: true });
-          this.req(agent, 'POST', `/chats/${this.cfg.roomId}/messages/${id}/processed`).catch(() => {});
+          if (!id || this.seen.has(`${agent}:${id}`)) continue;
+          const from = this.senderOf(m);
+          if (from === agent || !this.mentionsAgent(m, agent)) continue;
+          this.deliver(agent, { id, from, user: m.sender_name || m.sender?.name, text: m.content || '', mentions: [agent], viaBand: true });
+          this.req(agent, 'POST', `/chats/${room}/messages/${id}/processed`).catch(() => {});
         }
       } catch (err) {
         if (!this.lastErr || Date.now() - this.lastErr > 10000) console.warn(`[band] poll ${agent}: ${err.message}`);
@@ -120,7 +150,7 @@ class BandRestTransport {
       }
     };
     // Mark existing history as seen so an old audit is not replayed.
-    this.req(agent, 'GET', `/chats/${this.cfg.roomId}/messages?sort_order=desc&page_size=50`)
+    this.req(agent, 'GET', `/chats/${room}/messages?status=all&sort_order=desc&limit=100`)
       .then((r) => (r.data || r.messages || []).forEach((m) => this.seen.add(`${agent}:${m.id || m.message_id}`)))
       .catch(() => {})
       .finally(() => {
@@ -150,7 +180,19 @@ class BandRestTransport {
     const mentions = msg.mentions.filter((m) => this.cfg.agents[m]).map((m) => ({ id: this.cfg.agents[m].id, handle: this.cfg.agents[m].handle }));
     const content = msg.text.replace(/@(Scout|SafetyCritic|Executor)\b/g, (_, a) => `@${this.cfg.agents[a].handle}`);
     const r = await this.req(msg.from === 'human' ? 'Scout' : msg.from, 'POST', `/chats/${this.cfg.roomId}/messages`, { message: { content, mentions } });
-    return { id: r.data?.id || msg.id };
+    const id = r.data?.id || r.id || msg.id;
+    // Watchdog: if Band has not routed this to a mentioned agent within a few seconds,
+    // hand it over directly so a live demo never stalls, and say so in the log.
+    const wait = Number(process.env.BAND_FALLBACK_MS || 6000);
+    for (const a of msg.mentions) {
+      if (!this.handlers.has(a) || a === msg.from) continue;
+      setTimeout(() => {
+        if (this.seen.has(`${a}:${id}`)) return;
+        console.warn(`[band] ${a} did not receive ${id} from Band within ${wait} ms; delivering directly`);
+        this.deliver(a, { id, from: msg.from, user: msg.user, text: msg.text, mentions: [a], viaBand: false });
+      }, wait);
+    }
+    return { id };
   }
 
   async event(from, content, type = 'thought') {
