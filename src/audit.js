@@ -82,14 +82,15 @@ function plannerPrompt(c, blast) {
 
 async function plan(c, blast, meter, live, emit) {
   if (live) {
-    if (!meter.canSpend('planner', 4000, 900)) {
+    if (!meter.canSpend('planner', 4000, 3000)) {
       emit('warn', `Budget cap $${meter.budget.toFixed(2)} reached: using canned plan for ${c.title}`);
     } else {
       try {
-        const r = await llm.chatJSON('planner', llm.PLANNER_SYSTEM, plannerPrompt(c, blast), 900);
+        const r = await llm.chatJSON('planner', llm.PLANNER_SYSTEM, plannerPrompt(c, blast), 3000);
         meter.record('planner', r.tokensIn, r.tokensOut, r.ms, true);
         const j = r.json;
-        if (!j.rationale || !Array.isArray(j.plan)) throw new Error('planner JSON missing fields');
+        if (!j.rationale) throw new Error('planner JSON missing rationale');
+        if (!Array.isArray(j.plan)) j.plan = typeof j.plan === 'string' ? [j.plan] : c.canned.plan;
         return { source: 'crusoe', tokensOut: r.tokensOut, ms: r.ms, data: { ...c.canned, ...j } };
       } catch (err) {
         emit('warn', `Planner call failed (${String(err.message).slice(0, 80)}); falling back to canned plan`);

@@ -107,7 +107,10 @@ async function chatJSON(role, system, user, maxTokens) {
     max_tokens: maxTokens,
   });
   const ms = Date.now() - started;
-  const text = res.choices?.[0]?.message?.content || '';
+  const msg = res.choices?.[0]?.message || {};
+  // Reasoning models (Kimi K2.6) can put everything in reasoning_content or run out of
+  // tokens mid-thought; fall back to the reasoning text so extractJSON can still find the object.
+  const text = msg.content || msg.reasoning_content || msg.reasoning || '';
   const usage = res.usage || {};
   return {
     json: extractJSON(text),
