@@ -1,0 +1,45 @@
+Build an extension called certain: a cloud and AI spend audit resource. You create an audit, the
+agent asks the CertAIn service (already running on this machine) to audit Acme AI's cloud, waits for
+it to finish, and returns the findings as structured, first-class result fields.
+
+Naming — use exactly these, do not ask me to confirm them:
+  - extension name: certain
+  - resource type: SpendAudit  (ticketOriginType SpendAudit)
+  - restSegment / frontend route / menu relativeUrl: extensions/certain-audits
+  - Mongo collection: extension_spendaudit
+
+Menu placement — do not ask me about this either: a new top-level left-nav group titled
+"FinOps", with a single item titled "CertAIn Spend Audit".
+
+It needs NO cloud credentials. Do not attach a scope, do not ask me which scope to use, and do not
+add any provider config. One resource type. Flat — no parent-child hierarchy, no custom actions.
+
+SPEC (the create form), standard three-column panel-form-accordion:
+  - Company — text input, default "Acme AI", required.
+  - CertAIn URL — text input, default "http://172.17.0.1:3000", required. (The CertAIn server runs
+    on the WSL host; from inside Docker it is reachable on the docker0 bridge gateway. If
+    172.17.0.1 fails, try http://host.docker.internal:3000.)
+  - Requested by — text input, default "cto@acme.ai".
+  - Notes — multi-line textarea, optional.
+
+HOW THE AUDIT WORKS (plain HTTP, JSON, no auth):
+  1. POST <CertAIn URL>/api/reset
+  2. POST <CertAIn URL>/api/audit  with JSON {"user": "<Requested by>"}   -> 202 means started.
+     409 means an audit is already running: just go to step 3 and wait for it.
+  3. Poll GET <CertAIn URL>/api/state every 3 seconds, up to 5 minutes, until "running" is false
+     AND "summary" is not null.
+  4. From that JSON, populate the result:
+       - summary.findings           -> Findings (number)
+       - summary.refused            -> Vetoed by SafetyCritic (number)
+       - summary.potentialMonthly   -> Waste found, USD per month (number)
+       - summary.potentialKg        -> CO2 avoidable, kg per month (number)
+       - summary.meter.spent        -> Audit cost on Crusoe, USD (number)
+       - findings[] -> a table with one row per finding:
+           title, resources[].name (joined), monthlySavings, verdict (safe | caution | refuse),
+           criticSaid (APPROVE | VETO), reason, planSource, planModel
+  5. If the service is unreachable or times out, mark the resource Failed with a clear message.
+
+In the detail view, show the four summary numbers as headline fields at the top, then the findings
+table, with vetoed rows visibly marked. Add one line of help text on the resource page:
+"CertAIn: Crusoe reasons, Neo4j proves, a human approves, DuploCloud acts. Approve fixes in the
+CertAIn UI; nothing executes without human approval."
