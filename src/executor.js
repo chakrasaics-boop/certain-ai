@@ -58,6 +58,8 @@ function runDuploctl(args) {
   });
 }
 
+const inTenant = new Map(); // finding id -> resource exists in the live tenant
+
 const rid = (p) => `${p}-${Math.random().toString(16).slice(2, 10)}${Math.random().toString(16).slice(2, 6)}`;
 
 // Simulated log lines per action (what DuploCloud would report).
@@ -142,9 +144,20 @@ async function dryRun(finding) {
     ok: finding.verdict !== 'refuse',
     detail: `${blast.directCount} direct dependents (${blast.engine === 'neo4j' ? 'Neo4j' : 'in-memory graph'})`,
   });
-  if (live && cmds.dryRun) {
-    const res = await runDuploctl(cmds.dryRun);
-    checks.push({ name: 'DuploCloud resource lookup', ok: res.ok, detail: `${printable(cmds.dryRun)} -> ${res.ok ? 'found' : res.out}` });
+  if (live) {
+    // Real calls: prove the tenant is reachable, then look the resource up in it.
+    const t = process.env.DUPLO_TENANT;
+    const ten = await runDuploctl(['tenant', 'find', t]);
+    checks.push({ name: 'DuploCloud tenant', ok: ten.ok, detail: `duploctl tenant find ${t} -> ${ten.ok ? 'reachable (live)' : ten.out}` });
+    if (cmds.dryRun) {
+      const res = await runDuploctl(cmds.dryRun);
+      inTenant.set(finding.id, res.ok);
+      checks.push({
+        name: 'DuploCloud resource lookup',
+        ok: true,
+        detail: res.ok ? `${printable(cmds.dryRun)} -> found (live)` : `${printable(cmds.dryRun)} -> not in tenant ${t} (demo resource); execution will be simulated`,
+      });
+    }
   } else {
     checks.push({ name: 'DuploCloud resource lookup', ok: true, detail: `${printable(cmds.dryRun) || 'duplo API describe'} -> found in tenant (simulated)` });
   }
@@ -162,17 +175,19 @@ async function dryRun(finding) {
 
 async function apply(finding) {
   const cmds = commandsFor(finding);
-  if (isLive() && cmds.apply) {
+  if (isLive() && cmds.apply && inTenant.get(finding.id)) {
     const res = await runDuploctl(cmds.apply);
     return { mode: 'duploctl', ok: res.ok, log: [`$ ${printable(cmds.apply)}`, ...res.out.split('\n')] };
   }
-  const note = isLive() ? ['[certain] no duploctl command for this action; simulated'] : [];
+  const note = isLive()
+    ? [cmds.apply ? `[certain] ${finding.resources.map((r) => r.name).join(', ')} is demo data, not in tenant ${process.env.DUPLO_TENANT}; action simulated` : '[certain] no duploctl command for this action; simulated']
+    : [];
   return { mode: 'simulated', ok: true, log: [`$ ${printable(cmds.apply) || `duplo ${finding.action} ${finding.resources.map((r) => r.name).join(' ')}`}`, ...note, ...simulatedApply(finding)] };
 }
 
 async function rollback(finding) {
   const cmds = commandsFor(finding);
-  if (isLive() && cmds.rollback) {
+  if (isLive() && cmds.rollback && inTenant.get(finding.id)) {
     const res = await runDuploctl(cmds.rollback);
     return { mode: 'duploctl', ok: res.ok, log: [`$ ${printable(cmds.rollback)}`, ...res.out.split('\n')] };
   }

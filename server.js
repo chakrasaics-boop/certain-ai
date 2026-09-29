@@ -66,7 +66,7 @@ function integrations() {
     },
     { name: 'Neo4j', role: 'blast-radius graph', live: graph.engine === 'neo4j', detail: graph.status },
     { name: 'Band', role: 'agent room', live: room.mode === 'band', detail: room.transport.label },
-    { name: 'DuploCloud', role: 'execution + rollback', live: executor.isLive(), detail: executor.isLive() ? `duploctl · tenant ${process.env.DUPLO_TENANT}` : 'no DUPLO_* env: simulated tenant' },
+    { name: 'DuploCloud', role: 'execution + rollback', live: executor.isLive(), detail: executor.isLive() ? `duploctl · tenant ${process.env.DUPLO_TENANT} live; demo resources simulated` : 'no DUPLO_* env: simulated tenant' },
     { name: 'OpenRouter', role: 'live model pricing', live: or.source === 'live', detail: or.source === 'live' ? `${or.count} models fetched ${or.fetchedAt}` : `bundled snapshot${or.error ? ` (${or.error})` : ''}` },
   ];
 }
