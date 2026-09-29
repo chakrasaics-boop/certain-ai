@@ -30,9 +30,27 @@ const bad = (name, msg) => console.log(`  FAIL  ${name.padEnd(11)} ${msg}`);
   if (!bc.enabled) sim('Band', 'BAND_ROOM_ID + BAND_{SCOUT,SAFETY_CRITIC,EXECUTOR}_{API_KEY,ID} not all set: in-process room');
   else {
     try {
-      const r = await fetch(`${bc.baseURL}/api/v1/agent/me`, { headers: { 'X-API-Key': bc.agents.Scout.apiKey } });
-      if (!r.ok) throw new Error(`HTTP ${r.status}`);
-      ok('Band', `Scout authenticated; room ${bc.roomId}`);
+      const call = async (agent, method, path, body) => {
+        const r = await fetch(`${bc.baseURL}/api/v1/agent${path}`, {
+          method,
+          headers: { 'X-API-Key': bc.agents[agent].apiKey, 'content-type': 'application/json' },
+          body: body ? JSON.stringify(body) : undefined,
+        });
+        const text = await r.text();
+        if (!r.ok) throw new Error(`${agent} ${method} ${path} -> HTTP ${r.status} ${text.slice(0, 200)}`);
+        return text ? JSON.parse(text) : {};
+      };
+      for (const a of ['Scout', 'SafetyCritic', 'Executor']) await call(a, 'GET', '/me');
+      ok('Band', `all 3 agents authenticated; room ${bc.roomId}`);
+      const sc = bc.agents.SafetyCritic;
+      const posted = await call('Scout', 'POST', `/chats/${bc.roomId}/messages`, {
+        message: { content: `@${sc.handle} CertAIn connection check`, mentions: [{ id: sc.id, handle: sc.handle }] },
+      });
+      const list = await call('SafetyCritic', 'GET', `/chats/${bc.roomId}/messages?sort_order=desc&page_size=10`);
+      const items = list.data || list.messages || [];
+      const hit = items.find((m) => (m.content || '').includes('CertAIn connection check'));
+      if (hit) ok('Band', `Scout -> @${sc.handle} message delivered in the room`);
+      else bad('Band', `posted ${JSON.stringify(posted).slice(0, 150)} but SafetyCritic saw: ${JSON.stringify(list).slice(0, 300)}`);
     } catch (e) {
       bad('Band', e.message);
     }
