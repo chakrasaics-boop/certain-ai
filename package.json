@@ -5,11 +5,11 @@
   "main": "server.js",
   "type": "commonjs",
   "scripts": {
-    "start": "node server.js",
-    "models": "node scripts/list-models.js",
-    "test:e2e": "node scripts/e2e.js",
-    "check": "node scripts/check-integrations.js",
-    "seed:neo4j": "node scripts/seed-neo4j.js"
+    "start": "node --env-file-if-exists=.env server.js",
+    "models": "node --env-file-if-exists=.env scripts/list-models.js",
+    "test:e2e": "node --env-file-if-exists=.env scripts/e2e.js",
+    "check": "node --env-file-if-exists=.env scripts/check-integrations.js",
+    "seed:neo4j": "node --env-file-if-exists=.env scripts/seed-neo4j.js"
   },
   "engines": {
     "node": ">=18"
