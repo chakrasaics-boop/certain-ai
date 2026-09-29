@@ -91,7 +91,7 @@ async function plan(c, blast, meter, live, emit) {
         const j = r.json;
         if (!j.rationale) throw new Error('planner JSON missing rationale');
         if (!Array.isArray(j.plan)) j.plan = typeof j.plan === 'string' ? [j.plan] : c.canned.plan;
-        return { source: 'crusoe', tokensOut: r.tokensOut, ms: r.ms, data: { ...c.canned, ...j } };
+        return { source: 'crusoe', model: r.model, tokensOut: r.tokensOut, ms: r.ms, data: { ...c.canned, ...j } };
       } catch (err) {
         emit('warn', `Planner call failed (${String(err.message).slice(0, 80)}); falling back to canned plan`);
       }

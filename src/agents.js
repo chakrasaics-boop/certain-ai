@@ -202,6 +202,7 @@ class Crew extends EventEmitter {
         discovery: c.foundBy === 'graph' ? { engine: orph.engine, cypher: orph.cypher, entrypoints: orph.entrypoints } : null,
         plan: p.data,
         planSource: p.source,
+        planModel: p.model,
         status: 'reviewing',
       };
       if (c.key === 'closed-model-spend') {

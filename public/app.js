@@ -248,7 +248,7 @@
         </table>
         <div class="quote-src">Same ${q.tokensM}M tokens/mo at ${Math.round(q.inputShare * 100)}% input. OpenRouter prices: ${q.source === 'live' ? `live, ${q.modelsSeen} models` : 'bundled snapshot (live fetch unavailable)'}.</div>`
       : '';
-    return `<div class="card"><div class="card-h">@Scout's plan<span class="src">${f.planSource === 'crusoe' ? 'Kimi K2.6 on Crusoe · live' : 'Kimi K2.6 · canned (demo mode)'}</span></div>
+    return `<div class="card"><div class="card-h">@Scout's plan<span class="src">${f.planSource === 'crusoe' ? `${esc((f.planModel || 'Kimi K2.6').split('/').pop())} on Crusoe · live` : 'Kimi K2.6 · canned (demo mode)'}</span></div>
       <div class="card-b"><div class="headline">${esc(p.headline)}</div><p class="rationale">${esc(p.rationale)}</p>
       <ol class="plan">${(p.plan || []).map((s) => `<li>${esc(s)}</li>`).join('')}</ol>
       <div class="muted" style="margin-top:8px;font-size:12.5px"><b style="color:var(--text)">Rollback:</b> ${esc(p.rollback)}</div>${quote}</div></div>`;

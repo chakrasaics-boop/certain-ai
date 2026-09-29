@@ -93,12 +93,13 @@ function extractJSON(text) {
   return JSON.parse(cleaned.slice(start, end + 1));
 }
 
-async function chatJSON(role, system, user, maxTokens) {
-  const c = getClient();
-  if (!c) throw new Error('no CRUSOE_API_KEY');
+const PLANNER_FALLBACKS = (process.env.PLANNER_FALLBACK_MODELS || 'deepseek-ai/Deepseek-V4-Flash,zai-org/GLM-5.3-Flash,nvidia/NVIDIA-Nemotron-3-Super-120B-A12B')
+  .split(',').map((s) => s.trim()).filter(Boolean);
+
+async function chatOnce(c, model, system, user, maxTokens) {
   const started = Date.now();
   const res = await c.chat.completions.create({
-    model: MODELS[role].id,
+    model,
     messages: [
       { role: 'system', content: system },
       { role: 'user', content: user },
@@ -117,7 +118,25 @@ async function chatJSON(role, system, user, maxTokens) {
     tokensIn: usage.prompt_tokens || Math.ceil((system.length + user.length) / 4),
     tokensOut: usage.completion_tokens || Math.ceil(text.length / 4),
     ms,
+    model,
   };
+}
+
+async function chatJSON(role, system, user, maxTokens) {
+  const c = getClient();
+  if (!c) throw new Error('no CRUSOE_API_KEY');
+  // The planner falls back to other Crusoe-hosted open models if the primary is
+  // overloaded (503) or returns unusable output, so a live demo never stalls.
+  const models = role === 'planner' ? [MODELS[role].id, ...PLANNER_FALLBACKS] : [MODELS[role].id];
+  let lastErr;
+  for (const model of models) {
+    try {
+      return await chatOnce(c, model, system, user, maxTokens);
+    } catch (err) {
+      lastErr = err;
+    }
+  }
+  throw lastErr;
 }
 
 const PLANNER_SYSTEM = `You are CertAIn's planning agent, a senior FinOps + SRE engineer.
